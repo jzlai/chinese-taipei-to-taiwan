@@ -1,0 +1,14 @@
+{
+  "name": "Chinese Taipei to Taiwan",
+  "description": "Replaces Chinese Taipei with 'Taiwan'",
+  "version": "0.1",
+  "manifest_version": 3,
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "js": ["script.js"],
+      "all_frames": true,
+      "run_at": "document_end"
+    }
+  ]
+}
