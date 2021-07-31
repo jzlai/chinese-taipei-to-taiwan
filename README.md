@@ -1,4 +1,4 @@
-# Chinese Taipei to Taiwan
+# Chinese Taipei to Taiwan Chrome Extension
 
 Chrome extension that replaces "Chinese Taipei" with "Taiwan 🇹🇼"
 
