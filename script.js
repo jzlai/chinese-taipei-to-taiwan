@@ -1,23 +1,47 @@
+// Firefox and Chrome compatibility
+const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
+
 const replaceFn = () => {
-  chrome.storage.sync.get('enabled', ({ enabled }) => {
+  browserAPI.storage.sync.get(['enabled', 'showEmoji'], (data) => {
+    // Default both to true if not set
+    const enabled = data.enabled === undefined ? true : data.enabled;
+    const showEmoji = data.showEmoji === undefined ? true : data.showEmoji;
+
+    console.log('Replace function called:', { enabled, showEmoji, data });
+
     if (enabled) {
       const text = document.querySelectorAll(
-        'h1, h2, h3, h4, h5, p, li, td, caption, span, a, p'
+        'h1, h2, h3, h4, h5, p, li, td, caption, span, a, div'
       );
-      const regexp = /Chinese Taipei/gi;
+      const replacement = showEmoji ? 'Taiwan 🇹🇼' : 'Taiwan';
+
       for (const element of text) {
-        if (element.innerHTML.match(regexp)) {
-          element.innerHTML = element.innerHTML.replace(regexp, 'Taiwan 🇹🇼');
+        const html = element.innerHTML;
+
+        // Only replace "Chinese Taipei"
+        if (/Chinese Taipei/i.test(html)) {
+          element.innerHTML = html.replace(/Chinese Taipei/gi, replacement);
         }
       }
     }
   });
 };
 
+// Initial replacement on page load
+replaceFn();
+
+// Use MutationObserver instead of deprecated DOMSubtreeModified
 let timeout = null;
-document.addEventListener('DOMSubtreeModified', () => {
+const observer = new MutationObserver(() => {
   if (timeout) {
     clearTimeout(timeout);
   }
   timeout = setTimeout(replaceFn, 500);
+});
+
+// Observe changes to the entire document
+observer.observe(document.body, {
+  childList: true,
+  subtree: true,
+  characterData: true,
 });

@@ -1,0 +1,91 @@
+name: Release Extension
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "VERSION=${{ inputs.version }}" >> $GITHUB_OUTPUT
+            echo "TAG_NAME=v${{ inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+            echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Chrome zip
+        run: |
+          zip -r chinese-taipei-to-taiwan-chrome-${{ steps.version.outputs.VERSION }}.zip \
+            manifest.json \
+            script.js \
+            popup.html \
+            popup.js \
+            popup.css \
+            icons/ \
+            -x "*.git*" "*.DS_Store"
+
+      - name: Create Firefox zip
+        run: |
+          zip -r chinese-taipei-to-taiwan-firefox-${{ steps.version.outputs.VERSION }}.zip \
+            manifest.json \
+            script.js \
+            popup.html \
+            popup.js \
+            popup.css \
+            icons/ \
+            -x "*.git*" "*.DS_Store"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.TAG_NAME }}
+          name: Release ${{ steps.version.outputs.TAG_NAME }}
+          draft: false
+          prerelease: false
+          files: |
+            chinese-taipei-to-taiwan-chrome-${{ steps.version.outputs.VERSION }}.zip
+            chinese-taipei-to-taiwan-firefox-${{ steps.version.outputs.VERSION }}.zip
+          body: |
+            ## Chinese Taipei to Taiwan Extension ${{ steps.version.outputs.TAG_NAME }}
+
+            Browser extension that replaces "Chinese Taipei" with "Taiwan 🇹🇼" on all web pages.
+
+            ### Installation
+
+            **Chrome:**
+            1. Download `chinese-taipei-to-taiwan-chrome-${{ steps.version.outputs.VERSION }}.zip`
+            2. Extract the zip file
+            3. Go to `chrome://extensions/`
+            4. Enable "Developer mode"
+            5. Click "Load unpacked" and select the extracted folder
+
+            **Firefox:**
+            1. Download `chinese-taipei-to-taiwan-firefox-${{ steps.version.outputs.VERSION }}.zip`
+            2. Go to `about:addons`
+            3. Click the gear icon and select "Install Add-on From File"
+            4. Select the downloaded zip file (no need to extract)
+
+            ### Features
+            - Toggle extension on/off
+            - Toggle emoji display (Taiwan vs Taiwan 🇹🇼)
+            - Works on all websites
+            - Cross-browser compatible
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

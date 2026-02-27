@@ -6,8 +6,20 @@
 
   <body>
     <div class="root">
-      <label for="checkbox">Enabled</label>
-      <input type="checkbox" id="checkbox" />
+      <div class="option">
+        <label for="checkbox">Enabled</label>
+        <label class="toggle">
+          <input type="checkbox" id="checkbox" />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="option">
+        <label for="emoji-checkbox">Show emoji</label>
+        <label class="toggle">
+          <input type="checkbox" id="emoji-checkbox" />
+          <span class="slider"></span>
+        </label>
+      </div>
     </div>
     <script src="popup.js"></script>
   </body>
