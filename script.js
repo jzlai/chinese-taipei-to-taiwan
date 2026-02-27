@@ -7,8 +7,6 @@ const replaceFn = () => {
     const enabled = data.enabled === undefined ? true : data.enabled;
     const showEmoji = data.showEmoji === undefined ? true : data.showEmoji;
 
-    console.log('Replace function called:', { enabled, showEmoji, data });
-
     if (enabled) {
       const text = document.querySelectorAll(
         'h1, h2, h3, h4, h5, p, li, td, caption, span, a, div'
