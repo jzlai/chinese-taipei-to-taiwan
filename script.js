@@ -8,18 +8,30 @@ const replaceFn = () => {
     const showEmoji = data.showEmoji === undefined ? true : data.showEmoji;
 
     if (enabled) {
-      const text = document.querySelectorAll(
-        'h1, h2, h3, h4, h5, p, li, td, caption, span, a, div'
-      );
       const replacement = showEmoji ? 'Taiwan 🇹🇼' : 'Taiwan';
 
-      for (const element of text) {
-        const html = element.innerHTML;
+      // Use TreeWalker to find and replace text nodes only
+      const walker = document.createTreeWalker(
+        document.body,
+        NodeFilter.SHOW_TEXT,
+        null,
+        false
+      );
 
-        // Only replace "Chinese Taipei"
-        if (/Chinese Taipei/i.test(html)) {
-          element.innerHTML = html.replace(/Chinese Taipei/gi, replacement);
+      const nodesToReplace = [];
+      let node;
+      while ((node = walker.nextNode())) {
+        if (/Chinese Taipei/i.test(node.textContent)) {
+          nodesToReplace.push(node);
         }
+      }
+
+      // Replace text in collected nodes
+      for (const textNode of nodesToReplace) {
+        textNode.textContent = textNode.textContent.replace(
+          /Chinese Taipei/gi,
+          replacement
+        );
       }
     }
   });
